@@ -148,11 +148,16 @@ header p {
     .image-preview {
         position: relative;
         top: auto;
-        max-height: 40vh;
+        height: auto;
+        max-height: 260px;
         padding: 12px;
+        overflow: hidden;
     }
     .image-preview img {
-        max-height: 35vh;
+        display: block;
+        width: 100%;
+        height: auto;
+        max-height: 220px;
         object-fit: contain;
     }
 }
