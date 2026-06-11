@@ -639,7 +639,6 @@ function render() {
     });
     tbody.querySelectorAll('input, select').forEach(el => {
         el.addEventListener('change', onItemChange);
-        if (el.type === 'text' || el.type === 'number') el.addEventListener('input', onItemChange);
     });
     tbody.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', onDelete));
     updateSummary();

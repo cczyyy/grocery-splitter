@@ -30,6 +30,10 @@ body {
     margin: 0 auto;
     padding: 24px;
 }
+@media (max-width: 600px) {
+    .container { padding: 12px; }
+    header h1 { font-size: 1.5rem; }
+}
 
 /* Header */
 header {
@@ -141,6 +145,16 @@ header p {
     .layout {
         grid-template-columns: 1fr;
     }
+    .image-preview {
+        position: relative;
+        top: auto;
+        max-height: 40vh;
+        padding: 12px;
+    }
+    .image-preview img {
+        max-height: 35vh;
+        object-fit: contain;
+    }
 }
 
 /* Image Preview */
@@ -251,6 +265,7 @@ header p {
     box-shadow: var(--shadow);
     overflow: auto;
     max-height: 500px;
+    -webkit-overflow-scrolling: touch;
 }
 
 .items-table {
