@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🇩🇪 德语账单拆分助手</title>
+    <link rel="stylesheet" href="style.css">
+    <script src='https://unpkg.com/tesseract.js@5.0.5/dist/tesseract.min.js'></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛒 德语超市账单拆分助手</h1>
+            <p>上传账单图片 → 自动识别 → 翻译分类 → 智能分账</p>
+        </header>
+
+        <!-- 上传区域 -->
+        <section class="upload-section" id="uploadSection">
+            <div class="upload-box" id="uploadBox">
+                <div class="upload-icon">📤</div>
+                <p>拖拽图片到此处，或 <span class="link">点击上传</span></p>
+                <p class="hint">支持 JPG、PNG、WEBP 格式</p>
+                <input type="file" id="fileInput" accept="image/*" hidden>
+            </div>
+        </section>
+
+        <!-- 进度条 -->
+        <section class="progress-section hidden" id="progressSection">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p class="progress-text" id="progressText">正在初始化 OCR 引擎...</p>
+        </section>
+
+        <!-- 图片预览和识别结果 -->
+        <section class="result-section hidden" id="resultSection">
+            <div class="layout">
+                <div class="image-preview">
+                    <img id="previewImg" alt="账单预览">
+                </div>
+
+                <div class="data-panel">
+                    <!-- 全局设置 -->
+                    <div class="global-settings">
+                        <h3>⚙️ 分账设置</h3>
+                        <div class="settings-grid">
+                            <div class="setting-item">
+                                <label>合租人数</label>
+                                <input type="number" id="splitCount" value="2" min="2" max="10">
+                            </div>
+                            <div class="setting-item">
+                                <label>默认平分类别</label>
+                                <div class="tag-select" id="defaultSplitTags">
+                                    <span class="tag active" data-cat="meat">🥩 肉类</span>
+                                    <span class="tag active" data-cat="veg">🥬 蔬果</span>
+                                    <span class="tag" data-cat="dairy">🥛 奶制品</span>
+                                    <span class="tag" data-cat="bread">🍞 面包</span>
+                                    <span class="tag" data-cat="drink">🥤 饮料</span>
+                                    <span class="tag" data-cat="snack">🍪 零食</span>
+                                    <span class="tag" data-cat="daily">🧴 日用品</span>
+                                    <span class="tag" data-cat="other">📦 其他</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI 翻译设置 -->
+                    <div class="ai-settings" id="aiSettings">
+                        <div class="ai-header" id="aiHeader">
+                            <h3>🤖 AI 翻译增强 <small class="hint-text">（可选）</small></h3>
+                            <span class="toggle-icon" id="aiToggleIcon">▶</span>
+                        </div>
+                        <div class="ai-body hidden" id="aiBody">
+                            <div class="ai-row">
+                                <label>API Key</label>
+                                <input type="password" id="apiKey" placeholder="sk-xxxxxxxx">
+                            </div>
+                            <div class="ai-row">
+                                <label>API 地址</label>
+                                <select id="apiBase">
+                                    <option value="https://api.deepseek.com">DeepSeek (官方)</option>
+                                    <option value="https://api.siliconflow.cn">SiliconFlow (国内)</option>
+                                    <option value="custom">自定义...</option>
+                                </select>
+                                <input type="text" id="apiBaseCustom" class="hidden" placeholder="https://your-api.com/v1">
+                            </div>
+                            <div class="ai-row">
+                                <label>模型</label>
+                                <input type="text" id="apiModel" value="deepseek-chat" placeholder="deepseek-chat">
+                            </div>
+                            <div class="ai-row inline">
+                                <input type="checkbox" id="autoAiTranslate" checked>
+                                <label for="autoAiTranslate">上传后自动调用 AI 翻译</label>
+                            </div>
+                            <div class="ai-actions">
+                                <button class="btn secondary" id="aiTranslateBtn">✨ 用 AI 优化当前翻译</button>
+                                <span class="ai-status" id="aiStatus"></span>
+                            </div>
+                            <p class="ai-hint">💡 支持 DeepSeek / OpenAI / 通义千问 / SiliconFlow 等兼容接口。Key 仅保存在浏览器本地。</p>
+                        </div>
+                    </div>
+
+                    <!-- 商品列表 -->
+                    <div class="items-header">
+                        <h3>📝 商品清单 <small class="hint-text">（可点击编辑）</small></h3>
+                        <button class="btn secondary" id="addRowBtn">+ 添加行</button>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table class="items-table" id="itemsTable">
+                            <thead>
+                                <tr>
+                                    <th width="5%">#</th>
+                                    <th width="22%">德语原文</th>
+                                    <th width="13%">中文翻译</th>
+                                    <th width="10%">类别</th>
+                                    <th width="10%">原价 (€)</th>
+                                    <th width="10%">归属</th>
+                                    <th width="10%">公摊价 (€)</th>
+                                    <th width="10%">独占价 (€)</th>
+                                    <th width="5%">删除</th>
+                                </tr>
+                            </thead>
+                            <tbody id="itemsBody">
+                                <!-- 动态填充 -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 汇总 -->
+                    <div class="summary-card">
+                        <h3>💰 分账汇总</h3>
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <span class="label">账单总额</span>
+                                <span class="value" id="totalAmount">€0.00</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">公摊总额</span>
+                                <span class="value" id="sharedAmount">€0.00</span>
+                            </div>
+                            <div class="summary-item highlight">
+                                <span class="label">🅰️ A 应付</span>
+                                <span class="value" id="personAAmount">€0.00</span>
+                            </div>
+                            <div class="summary-item highlight">
+                                <span class="label">🅱️ B 应付</span>
+                                <span class="value" id="personBAmount">€0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 调试区 -->
+                    <div class="debug-section" id="debugSection">
+                        <div class="debug-header" id="debugHeader">
+                            <span>🔧 OCR 原始文本（调试用）</span>
+                            <span class="toggle-icon" id="debugToggleIcon">▶</span>
+                        </div>
+                        <div class="debug-body hidden" id="debugBody">
+                            <textarea id="debugText" readonly></textarea>
+                        </div>
+                    </div>
+
+                    <!-- 操作按钮 -->
+                    <div class="actions">
+                        <button class="btn primary" id="copyBtn">📋 复制分账文本</button>
+                        <button class="btn secondary" id="exportCsvBtn">📄 导出 CSV</button>
+                        <button class="btn danger" id="resetBtn">🗑️ 清空重开</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 文本显示区域（用于复制） -->
+        <textarea id="copyBuffer" style="position:fixed;left:-9999px;"></textarea>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
