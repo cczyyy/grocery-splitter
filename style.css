@@ -611,3 +611,216 @@ header p {
     resize: vertical;
     background: white;
 }
+
+/* Mobile-first repair layer. Keep this at the end so it wins over desktop rules above. */
+@media (max-width: 700px) {
+    body {
+        line-height: 1.45;
+    }
+
+    .container {
+        padding: 10px;
+    }
+
+    header {
+        margin-bottom: 14px;
+    }
+
+    header h1 {
+        font-size: 1.35rem;
+        line-height: 1.2;
+    }
+
+    header p {
+        font-size: 0.9rem;
+    }
+
+    .upload-box {
+        padding: 24px 12px;
+    }
+
+    .layout {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .data-panel {
+        order: 1;
+        gap: 12px;
+    }
+
+    .image-preview {
+        order: 2;
+        position: static !important;
+        top: auto !important;
+        height: auto !important;
+        max-height: none !important;
+        padding: 10px;
+        overflow: hidden;
+    }
+
+    .image-preview::before {
+        content: "账单图片预览";
+        display: block;
+        margin-bottom: 8px;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .image-preview img {
+        display: block;
+        width: 100%;
+        max-height: 180px !important;
+        height: auto !important;
+        object-fit: contain;
+        object-position: top center;
+        background: #fff;
+    }
+
+    .global-settings,
+    .summary-card,
+    .ai-settings {
+        padding: 14px;
+    }
+
+    .items-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .items-header .btn {
+        padding: 8px 12px;
+        white-space: nowrap;
+    }
+
+    .table-wrapper {
+        max-height: none;
+        overflow: visible;
+        background: transparent;
+        box-shadow: none;
+        border-radius: 0;
+    }
+
+    .items-table,
+    .items-table tbody,
+    .items-table tr,
+    .items-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .items-table {
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 0.9rem;
+    }
+
+    .items-table thead {
+        display: none;
+    }
+
+    .items-table tr {
+        margin-bottom: 12px;
+        padding: 12px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+    }
+
+    .items-table tr:hover td {
+        background: transparent;
+    }
+
+    .items-table td {
+        display: grid;
+        grid-template-columns: 86px minmax(0, 1fr);
+        gap: 8px;
+        align-items: center;
+        padding: 7px 0;
+        border-bottom: 1px solid #edf2f7;
+    }
+
+    .items-table td:last-child {
+        border-bottom: 0;
+    }
+
+    .items-table td::before {
+        content: attr(data-label);
+        color: var(--text-muted);
+        font-size: 0.78rem;
+        font-weight: 600;
+    }
+
+    .items-table td:first-child {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--primary);
+        font-weight: 700;
+        padding-bottom: 9px;
+    }
+
+    .items-table td:first-child::before {
+        content: "商品";
+    }
+
+    .items-table input,
+    .items-table select,
+    .owner-select {
+        min-height: 38px;
+        padding: 8px 10px;
+        border-color: var(--border);
+        background: #fff;
+        font-size: 16px; /* Prevent iOS Safari from zooming inputs. */
+    }
+
+    .items-table input[type="number"] {
+        text-align: left;
+    }
+
+    .delete-btn {
+        justify-self: start;
+        min-width: 42px;
+        min-height: 36px;
+        background: #fee2e2;
+    }
+
+    .summary-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .summary-item {
+        padding: 10px;
+        border-radius: 8px;
+        background: #f8fafc;
+    }
+
+    .summary-item .value {
+        font-size: 1.15rem;
+    }
+
+    .summary-item.highlight .value {
+        font-size: 1.25rem;
+    }
+
+    .actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .btn {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .debug-body textarea {
+        height: 140px;
+        font-size: 0.78rem;
+    }
+}

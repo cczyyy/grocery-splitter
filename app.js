@@ -16,6 +16,11 @@ const CATEGORY_META = {
     other:  { emoji: '📦', name: '其他',      defaultShared: false },
 };
 
+const PEOPLE = {
+    A: '陈致宇',
+    B: '桂子易',
+};
+
 const AI_CAT_MAP = {
     '肉类': 'meat', '肉': 'meat', 'meat': 'meat',
     '蔬果': 'veg', '蔬菜': 'veg', '水果': 'veg', '果蔬': 'veg', 'veg': 'veg', 'vegetable': 'veg', 'fruit': 'veg',
@@ -52,6 +57,10 @@ const TRANSLATION_DICT = {
     'heid': '蓝莓', 'heidel': '蓝莓', 'heidelbeere': '蓝莓',
     'cremig': '奶油味',
     'lays': '乐事',
+    'pepsi': '百事', 'cola': '可乐', 'pepsi cola': '百事可乐',
+    'pfand': '押金', 'pfandartikel': '押金',
+    'chipsfrisch': '奇奥薯片', 'chaka': 'Chaka口味',
+    'rocher': '费列罗榛果巧克力', 'raffaello': '拉斐尔椰蓉巧克力', 'tafel': '板装',
     'hot wings': '辣翅',
     'super-sandwich': '超级三明治',
     'schweinerücken': '猪背肉',
@@ -64,6 +73,7 @@ const TRANSLATION_DICT = {
     'mini-pak choi': '迷你小白菜',
     'hähnchenflügel': '鸡翅', 'h-flügel': '鸡翅',
     'rind': '牛肉', 'rindfleisch': '牛肉', 'schwein': '猪肉', 'schweinefleisch': '猪肉',
+    'entrecote': '肋眼牛排', 'rindergulasch': '炖牛肉', 'asia chicken': '亚洲风味鸡肉',
     'hähnchenbrust': '鸡胸肉', 'hähnchenkeule': '鸡腿',
     'huhn': '鸡', 'pute': '火鸡', 'putebrust': '火鸡胸肉',
     'ente': '鸭', 'lamm': '羊肉', 'kalb': '小牛肉', 'leber': '肝',
@@ -149,23 +159,26 @@ const TRANSLATION_DICT = {
     'halal': '清真',
     'häagen': '哈根达斯', 'dazs': '达斯',
     'sprehe': 'Sprehe', 'chickenw': '鸡肉',
+    'buttertoast': '黄油吐司', 'broccoli': '西兰花',
     'chinakohl': '大白菜', 'möhren': '胡萝卜', 'paprika': '彩椒',
     'heidelbeeren': '蓝莓', 'bananen': '香蕉', 'mandarinen': '橘子',
-    'grün': '绿色',
+    'tomaten': '番茄', 'rispen': '串', 'clem': '小柑橘', 'mand': '橘子',
+    'äpfel': '苹果', 'kanzi': 'Kanzi苹果', 'grün': '绿色',
 };
 
 const CATEGORY_KEYWORDS = {
-    meat: ['rind','schwein','hähnchen','huhn','pute','ente','lamm','kalb','leber','wurst','bratwurst','wiener','salami','schinken','speck','hack','frikadelle','kotelett','schnitzel','gulasch','braten','fisch','lachs','thunfisch','garnelen','fischstäbchen','hering','makrele','seehecht','filet','steak','minuten','sülze','blutwurst','leberwurst','flügel','wing','wings','hähnchenflügel','rücken','schweinerücken','kfc','chickenw'],
-    veg:  ['apfel','banane','orange','mandarine','traube','kirsche','erdbeere','himbeere','blaubeere','brombeere','pfirsich','birne','melone','wassermelone','honigmelone','zitrone','limette','avocado','mango','ananas','tomate','gurke','kartoffel','zwiebel','knoblauch','möhre','karotte','salat','eisberg','spinat','brokkoli','blumenkohl','paprika','aubergine','zucchini','kürbis','radieschen','lauch','sellerie','fenchel','kohl','weißkohl','rotkohl','spitzkohl','pilz','champignon','shiitake','porree','apfelsine','pflaume','aprikose','feige','granatapfel','kiwi','limone','grapefruit','obst','gemüse','bananen','äpfel','tomaten','gurken','kartoffeln','zwiebeln','karotten','salatkopf','kräuter','basilikum','petersilie','dill','schnittlauch','thymian','rosmarin','nektarine','nektarinen','pak choi','pakchoi','choi','galia','melone galia','melonen galia','chinakohl','möhren','paprika','heidelbeeren','bananen','mandarinen'],
+    meat: ['rind','schwein','hähnchen','huhn','pute','ente','lamm','kalb','leber','wurst','bratwurst','wiener','salami','schinken','speck','hack','frikadelle','kotelett','schnitzel','gulasch','braten','fisch','lachs','thunfisch','garnelen','fischstäbchen','hering','makrele','seehecht','filet','steak','minuten','sülze','blutwurst','leberwurst','flügel','wing','wings','hähnchenflügel','rücken','schweinerücken','chickenw','entrecote','rindergulasch','asia chicken'],
+    veg:  ['apfel','äpfel','banane','orange','mandarine','traube','kirsche','erdbeere','himbeere','blaubeere','brombeere','pfirsich','birne','melone','wassermelone','honigmelone','zitrone','limette','avocado','mango','ananas','tomate','tomaten','gurke','kartoffel','zwiebel','knoblauch','möhre','karotte','salat','eisberg','spinat','brokkoli','broccoli','blumenkohl','paprika','aubergine','zucchini','kürbis','radieschen','lauch','sellerie','fenchel','kohl','weißkohl','rotkohl','spitzkohl','pilz','champignon','shiitake','porree','apfelsine','pflaume','aprikose','feige','granatapfel','kiwi','limone','grapefruit','obst','gemüse','bananen','äpfel','tomaten','gurken','kartoffeln','zwiebeln','karotten','salatkopf','kräuter','basilikum','petersilie','dill','schnittlauch','thymian','rosmarin','nektarine','nektarinen','pak choi','pakchoi','choi','galia','melone galia','melonen galia','chinakohl','möhren','paprika','heidelbeeren','bananen','mandarinen','clem','clementinen','kanzi'],
     dairy:['milch','vollmilch','fettarm','käse','frischkäse','mozzarella','emmentaler','gouda','feta','butterkäse','schnittkäse','streichkäse','butter','margarine','sahne','crème','joghurt','quark','pudding','kaka','milchdrink','kefir','buttermilch','sahnequark','fruchtjoghurt','trinkjoghurt','schmand','h-milch','häagen','dazs'],
-    bread:['brot','brötchen','semmel','baguette','croissant','toast','toastbrot','brotscheibe','vollkornbrot','roggenbrot','brezel','kuchen','torte','gebäck','stollen','ciabatta','fladenbrot','pizzateig','sandwich','super-sandwich'],
+    bread:['brot','brötchen','semmel','baguette','croissant','toast','buttertoast','toastbrot','brotscheibe','vollkornbrot','roggenbrot','brezel','kuchen','torte','gebäck','stollen','ciabatta','fladenbrot','pizzateig','sandwich','super-sandwich'],
     drink:['wasser','mineralwasser','stilles','sprudel','cola','fanta','sprite','saft','orangensaft','apfelsaft','apfelschorle','traubensaft','ananasssaft','tomatensaft','bier','pils','export','weizen','wein','rotwein','weißwein','sekt','kaffee','tee','kamillentee','pfefferminztee','limonade','eistee','energy','red bull','alkohol','schnaps','likör','milchshake','smoothie','kakao','pfirsich','eistee'],
-    snack:['schokolade','tafel','riegel','müsliriegel','chips','nuss','nüsse','erdnuss','mandel','walnuss','haselnuss','cashew','keks','kekse','butterkeks','doppelkeks','bonbon','gummibär','lakritz','schokoriegel','eis','stieleis','eiscreme','müsli','cornflakes','knuspermüsli','praline','nougat','karamell','popcorn','salzstangen','lays','gesalzen','wal','heid','walnuss','heidelbeere','häagen','dazs'],
+    snack:['schokolade','tafel','riegel','müsliriegel','chips','chipsfrisch','rocher','raffaello','nuss','nüsse','erdnuss','mandel','walnuss','haselnuss','cashew','keks','kekse','butterkeks','doppelkeks','bonbon','gummibär','lakritz','schokoriegel','eis','stieleis','eiscreme','müsli','cornflakes','knuspermüsli','praline','nougat','karamell','popcorn','salzstangen','lays','gesalzen','wal','heid','walnuss','heidelbeere','häagen','dazs'],
     daily:['shampoo','duschgel','seife','zahnpasta','deodorant','deo','rasierer','rasierschaum','taschentuch','taschentücher','küchenrolle','toilettenpapier','klopapier','watte','waschmittel','weichspüler','spülmittel','creme','lotion','handcreme','sonnencreme','spülung','zahnbürste','zahnseide','duschcreme','gesichtswasser','make-up','tampon','binde','windel','feuchttuch','reinigungsmittel','geschirrspülmittel','badreiniger','fensterreiniger'],
 };
 
 const SKIP_PATTERNS = [
     /\b(REWE|ALDI|LIDL|EDEKA|PENNY|NETTO|KAUFLAND|DM|ROSSMANN|MÜLLER|BIO|MARKT)\b/i,
+    /\b(PREIS|PRICE)\s*(EUR|€)?\b/i,
     /\b(SUMME|TOTAL|GESAMT|ZWISCHENSUMME|SUBTOTAL)\b/i,
     /\b(MWST|UST|STEUER|VAT|ST\.|STEUER %)\b/i,
     /\b(BAR|EC-CASH|KREDITKARTE|KARTE|GUTSCHEIN|PAYBACK|COUPON|KARTENZAHLUNG)\b/i,
@@ -318,6 +331,7 @@ function handleFiles(files) {
 
 async function runOCR(imageUrl) {
     try {
+        await waitForTesseract();
         const result = await Tesseract.recognize(imageUrl, 'deu', {
             logger: m => {
                 if (m.status === 'recognizing text') {
@@ -348,6 +362,9 @@ async function runOCR(imageUrl) {
         els.progressSection.classList.add('hidden');
         els.resultSection.classList.remove('hidden');
         render();
+        requestAnimationFrame(() => {
+            els.resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
 
         if (els.autoAiTranslate.checked && els.apiKey.value.trim()) {
             await runAiTranslate(items);
@@ -360,8 +377,19 @@ async function runOCR(imageUrl) {
     }
 }
 
+async function waitForTesseract() {
+    if (window.Tesseract) return;
+    els.progressText.textContent = '正在加载 OCR 引擎...';
+    for (let i = 0; i < 80; i++) {
+        await new Promise(resolve => setTimeout(resolve, 250));
+        if (window.Tesseract) return;
+    }
+    throw new Error('OCR 引擎加载失败，请检查网络后刷新页面重试');
+}
+
 function parseReceipt(lines) {
     const products = [];
+    const receiptTotal = extractReceiptTotal(lines);
     let current = null;
     let pendingName = null;
 
@@ -439,8 +467,65 @@ function parseReceipt(lines) {
         }
     }
     flushCurrent();
+    reconcilePricesWithReceiptTotal(products, receiptTotal);
     if (products.length === 0) alert('未能自动识别出商品，请尝试截图更清晰或手动添加。');
     return products;
+}
+
+function extractReceiptTotal(lines) {
+    let cardTotal = null;
+    for (const rawLine of lines) {
+        const line = rawLine.trim();
+        if (!/^\s*(summe|total|gesamt|kartenzahlung)\b/i.test(line)) continue;
+        const matches = [...line.matchAll(/(\d+[,.]\d{2})/g)];
+        if (matches.length === 0) continue;
+        const value = parseFloat(matches[matches.length - 1][0].replace(',', '.'));
+        if (Number.isNaN(value) || value <= 0) continue;
+        if (/^\s*(summe|total|gesamt)\b/i.test(line)) return value;
+        if (/^\s*kartenzahlung\b/i.test(line)) cardTotal = value;
+    }
+    return cardTotal;
+}
+
+function reconcilePricesWithReceiptTotal(products, receiptTotal) {
+    if (!receiptTotal || products.length === 0) return;
+    const toCents = value => Math.round(value * 100);
+    let parsedTotal = products.reduce((sum, item) => sum + toCents(item.price), 0);
+    const targetTotal = toCents(receiptTotal);
+    let diff = parsedTotal - targetTotal;
+
+    // OCR sometimes reads a leading 0 in the price column as 9:
+    // 0,99 -> 9,99. If the item sum is off by exactly 9 EUR, fix only
+    // suspicious 9.xx prices and only when the receipt total proves it.
+    const mistakes = Math.round(diff / 900);
+    if (mistakes <= 0 || Math.abs(diff - mistakes * 900) > 75) return;
+
+    const cheapItemPattern = /(chips|chipsfrisch|chaka|cola|pfand|toast|broccoli|brokkoli|möhre|möhren|tomate|tomaten|aubergine|banane|bananen|mandarine|äpfel|apfel|keks|eistee|milch|paprika|spitzkohl|chinakohl|choi|pak|clem|mand)/i;
+    const candidates = products
+        .map((item, index) => ({
+            item,
+            index,
+            likelyCheap: cheapItemPattern.test(item.original),
+            // Meat and larger prepared items can genuinely cost 9.xx; avoid
+            // touching them unless there is no other way to match the receipt.
+            likelyExpensive: /(entrecote|rinder|gulasch|schwein|flügel|wings|chicken|steak|fleisch)/i.test(item.original)
+        }))
+        .filter(entry => entry.item.price >= 9 && entry.item.price < 10)
+        .sort((a, b) =>
+            Number(b.likelyCheap) - Number(a.likelyCheap) ||
+            Number(a.likelyExpensive) - Number(b.likelyExpensive) ||
+            a.index - b.index
+        );
+
+    if (candidates.length < mistakes) return;
+
+    const chosen = candidates.slice(0, mistakes);
+    const correctedTotal = parsedTotal - chosen.length * 900;
+    if (Math.abs(correctedTotal - targetTotal) > 75) return;
+
+    for (const entry of chosen) {
+        entry.item.price = Number((entry.item.price - 9).toFixed(2));
+    }
 }
 
 function similarity(a, b) {
@@ -495,6 +580,11 @@ function translate(german) {
 
 function classify(german) {
     const lower = german.toLowerCase();
+    if (/\b(pfand|pfandartikel)\b/.test(lower)) return 'other';
+    if (/(lays|chips|chipsfrisch|rocher|raffaello|häagen|dazs|keks|schokolade)/.test(lower)) return 'snack';
+    if (/(pepsi|cola|eistee|saft|wasser|limonade)/.test(lower)) return 'drink';
+    if (/(flügel|hot wings|schweinerücken|entrecote|rindergulasch|asia chicken|sprehechicken)/.test(lower)) return 'meat';
+    if (/(buttertoast|toast|sandwich|brot|brötchen)/.test(lower)) return 'bread';
     for (const [cat, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
         for (const kw of keywords) if (lower.includes(kw)) return cat;
     }
@@ -613,27 +703,26 @@ function render() {
     items.forEach((item, idx) => {
         const tr = document.createElement('tr');
         const ownerClass = item.owner === 'A' ? 'owner-a' : item.owner === 'B' ? 'owner-b' : 'owner-shared';
-        const ownerLabel = item.owner === 'A' ? 'A独占' : item.owner === 'B' ? 'B独占' : '公摊';
         tr.innerHTML = `
-            <td>${idx + 1}</td>
-            <td><input type="text" value="${esc(item.original)}" data-id="${item.id}" data-field="original"></td>
-            <td><input type="text" value="${esc(item.translated)}" data-id="${item.id}" data-field="translated" placeholder="点击翻译..."></td>
-            <td>
+            <td data-label="#">${idx + 1}</td>
+            <td data-label="德语原文"><input type="text" value="${esc(item.original)}" data-id="${item.id}" data-field="original"></td>
+            <td data-label="中文翻译"><input type="text" value="${esc(item.translated)}" data-id="${item.id}" data-field="translated" placeholder="点击翻译..."></td>
+            <td data-label="类别">
                 <select data-id="${item.id}" data-field="category">
                     ${Object.entries(CATEGORY_META).map(([key, meta]) => `<option value="${key}" ${item.category === key ? 'selected' : ''}>${meta.emoji} ${meta.name}</option>`).join('')}
                 </select>
             </td>
-            <td><input type="number" step="0.01" value="${item.price.toFixed(2)}" data-id="${item.id}" data-field="price"></td>
-            <td>
+            <td data-label="原价 (€)"><input type="number" step="0.01" value="${item.price.toFixed(2)}" data-id="${item.id}" data-field="price"></td>
+            <td data-label="归属">
                 <select class="owner-select ${ownerClass}" data-id="${item.id}" data-field="owner">
                     <option value="" ${item.owner === '' ? 'selected' : ''}>公摊</option>
-                    <option value="A" ${item.owner === 'A' ? 'selected' : ''}>A独占</option>
-                    <option value="B" ${item.owner === 'B' ? 'selected' : ''}>B独占</option>
+                    <option value="A" ${item.owner === 'A' ? 'selected' : ''}>${PEOPLE.A}独占</option>
+                    <option value="B" ${item.owner === 'B' ? 'selected' : ''}>${PEOPLE.B}独占</option>
                 </select>
             </td>
-            <td>${item.owner === '' ? fmt(item.splitPrice) : '-'}</td>
-            <td>${item.owner !== '' ? fmt(item.exclusivePrice) : '-'}</td>
-            <td><button class="delete-btn" data-id="${item.id}">🗑️</button></td>
+            <td data-label="公摊价 (€)">${item.owner === '' ? fmt(item.splitPrice) : '-'}</td>
+            <td data-label="独占价 (€)">${item.owner !== '' ? fmt(item.exclusivePrice) : '-'}</td>
+            <td data-label="删除"><button class="delete-btn" data-id="${item.id}" aria-label="删除第 ${idx + 1} 个商品">🗑️</button></td>
         `;
         tbody.appendChild(tr);
     });
@@ -699,7 +788,7 @@ function copySummary() {
         '════════════════════════════',
         '',
         ...items.map((it, i) => {
-            const owner = it.owner === 'A' ? '【A独占】' : it.owner === 'B' ? '【B独占】' : '【公摊】';
+            const owner = it.owner === 'A' ? `【${PEOPLE.A}独占】` : it.owner === 'B' ? `【${PEOPLE.B}独占】` : '【公摊】';
             return `${i+1}. ${it.original} → ${it.translated || '(未翻译)'} | ${CATEGORY_META[it.category].name} | €${it.price.toFixed(2)} ${owner}`;
         }),
         '',
@@ -707,8 +796,8 @@ function copySummary() {
         `账单总额：€${total.toFixed(2)}`,
         `公摊总额：€${sharedTotal.toFixed(2)}（${count}人分，每人 €${sharedPerPerson.toFixed(2)}）`,
         '',
-        `🅰️ A 应付 = €${sharedPerPerson.toFixed(2)}(公摊) + €${aTotal.toFixed(2)}(独占) = €${aPays.toFixed(2)}`,
-        `🅱️ B 应付 = €${sharedPerPerson.toFixed(2)}(公摊) + €${bTotal.toFixed(2)}(独占) = €${bPays.toFixed(2)}`,
+        `${PEOPLE.A} 应付 = €${sharedPerPerson.toFixed(2)}(公摊) + €${aTotal.toFixed(2)}(独占) = €${aPays.toFixed(2)}`,
+        `${PEOPLE.B} 应付 = €${sharedPerPerson.toFixed(2)}(公摊) + €${bTotal.toFixed(2)}(独占) = €${bPays.toFixed(2)}`,
     ];
     els.copyBuffer.value = lines.join('\n');
     els.copyBuffer.select();
@@ -720,7 +809,7 @@ function exportCsv() {
     const headers = ['序号', '德语原文', '中文翻译', '类别', '原价(€)', '归属', '公摊价(€)', '独占价(€)'];
     const rows = items.map((it, i) => [
         i + 1, it.original, it.translated, CATEGORY_META[it.category].name, it.price.toFixed(2),
-        it.owner === 'A' ? 'A独占' : it.owner === 'B' ? 'B独占' : '公摊',
+        it.owner === 'A' ? `${PEOPLE.A}独占` : it.owner === 'B' ? `${PEOPLE.B}独占` : '公摊',
         it.owner === '' ? it.splitPrice.toFixed(2) : '',
         it.owner !== '' ? it.exclusivePrice.toFixed(2) : ''
     ]);
