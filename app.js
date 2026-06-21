@@ -254,7 +254,9 @@ function loadSettings() {
     const opt = Array.from(els.apiBase.options).find(o => o.value === savedBase);
     if (opt) els.apiBase.value = savedBase;
     else { els.apiBase.value = 'custom'; els.apiBaseCustom.value = savedBase; els.apiBaseCustom.classList.remove('hidden'); }
-    els.apiModel.value = localStorage.getItem('grocery_api_model') || 'deepseek-chat';
+    let savedModel = localStorage.getItem('grocery_api_model') || 'deepseek-chat';
+    if (savedBase === 'https://api.moonshot.cn/v1' && savedModel === 'kimi-latest') savedModel = 'moonshot-v1-8k';
+    els.apiModel.value = savedModel;
     els.autoAiTranslate.checked = localStorage.getItem('grocery_auto_ai') !== 'false';
 }
 
@@ -830,5 +832,6 @@ function exportCsv() {
 
 loadSettings();
 updateSummary();
+
 
 

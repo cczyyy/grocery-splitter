@@ -80,7 +80,7 @@
                                 <select id="apiBase">
                                     <option value="https://api.deepseek.com" data-model="deepseek-chat">DeepSeek (官方)</option>
                                     <option value="https://api.siliconflow.cn" data-model="deepseek-ai/DeepSeek-V3">SiliconFlow (国内)</option>
-                                    <option value="https://api.moonshot.cn/v1" data-model="kimi-latest">Moonshot / Kimi (官方)</option>
+                                    <option value="https://api.moonshot.cn/v1" data-model="moonshot-v1-8k">Moonshot / Kimi (稳定)</option>
                                     <option value="custom">自定义...</option>
                                 </select>
                                 <input type="text" id="apiBaseCustom" class="hidden" placeholder="https://your-api.com/v1">
@@ -97,7 +97,7 @@
                                 <button class="btn secondary" id="aiTranslateBtn">✨ 用 AI 优化当前翻译</button>
                                 <span class="ai-status" id="aiStatus"></span>
                             </div>
-                            <p class="ai-hint">💡 支持 DeepSeek / Kimi(Moonshot) / OpenAI / 通义千问 / SiliconFlow 等兼容接口。Key 仅保存在浏览器本地。</p>
+                            <p class="ai-hint">💡 支持 DeepSeek / Kimi(Moonshot) / OpenAI / 通义千问 / SiliconFlow 等兼容接口。Moonshot 默认使用 moonshot-v1-8k；如账号开通了其他模型，可手动改模型名。Key 仅保存在浏览器本地。</p>
                         </div>
                     </div>
 
@@ -179,4 +179,5 @@
     <script src="app.js"></script>
 </body>
 </html>
+
 
