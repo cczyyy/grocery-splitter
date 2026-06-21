@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 德语账单拆分助手 - 核心逻辑 (归属人版)
  * 支持 DeepSeek / OpenAI 等兼容接口
  */
@@ -304,6 +304,11 @@ els.aiHeader.addEventListener('click', () => {
 els.apiBase.addEventListener('change', () => {
     if (els.apiBase.value === 'custom') els.apiBaseCustom.classList.remove('hidden');
     else els.apiBaseCustom.classList.add('hidden');
+
+    const selected = els.apiBase.options[els.apiBase.selectedIndex];
+    const defaultModel = selected?.dataset?.model;
+    if (defaultModel) els.apiModel.value = defaultModel;
+    saveSettings();
 });
 [els.apiKey, els.apiBase, els.apiBaseCustom, els.apiModel, els.autoAiTranslate].forEach(el => el.addEventListener('change', saveSettings));
 els.aiTranslateBtn.addEventListener('click', () => { if (items.length === 0) { alert('请先上传账单'); return; } runAiTranslate(items); });
@@ -825,3 +830,5 @@ function exportCsv() {
 
 loadSettings();
 updateSummary();
+
+
