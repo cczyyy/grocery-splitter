@@ -61,6 +61,10 @@ const TRANSLATION_DICT = {
     'pfand': '押金', 'pfandartikel': '押金',
     'chipsfrisch': '奇奥薯片', 'chaka': 'Chaka口味',
     'rocher': '费列罗榛果巧克力', 'raffaello': '拉斐尔椰蓉巧克力', 'tafel': '板装',
+    'magnum': '梦龙', 'popcorn': '爆米花', 'pringles': '品客',
+    'oreo': '奥利奥', 'vanilla': '香草', 'cream': '奶油',
+    'sunlolly': 'Sun Lolly冰棒', 'wassereis': '冰棍',
+    'rabatt': '折扣', 'xtra rabatt': 'Kaufland会员折扣',
     'hot wings': '辣翅',
     'super-sandwich': '超级三明治',
     'schweinerücken': '猪背肉',
@@ -74,6 +78,8 @@ const TRANSLATION_DICT = {
     'hähnchenflügel': '鸡翅', 'h-flügel': '鸡翅',
     'rind': '牛肉', 'rindfleisch': '牛肉', 'schwein': '猪肉', 'schweinefleisch': '猪肉',
     'entrecote': '肋眼牛排', 'rindergulasch': '炖牛肉', 'asia chicken': '亚洲风味鸡肉',
+    'kutteln': '牛肚', 'pansen': '牛肚', 'bratwurst': '烤香肠',
+    'nuggets': '鸡块', 'chicken-nuggets': '鸡块',
     'hähnchenbrust': '鸡胸肉', 'hähnchenkeule': '鸡腿',
     'huhn': '鸡', 'pute': '火鸡', 'putebrust': '火鸡胸肉',
     'ente': '鸭', 'lamm': '羊肉', 'kalb': '小牛肉', 'leber': '肝',
@@ -164,20 +170,21 @@ const TRANSLATION_DICT = {
     'heidelbeeren': '蓝莓', 'bananen': '香蕉', 'mandarinen': '橘子',
     'tomaten': '番茄', 'rispen': '串', 'clem': '小柑橘', 'mand': '橘子',
     'äpfel': '苹果', 'kanzi': 'Kanzi苹果', 'grün': '绿色',
+    'hren': '胡萝卜',
 };
 
 const CATEGORY_KEYWORDS = {
     meat: ['rind','schwein','hähnchen','huhn','pute','ente','lamm','kalb','leber','wurst','bratwurst','wiener','salami','schinken','speck','hack','frikadelle','kotelett','schnitzel','gulasch','braten','fisch','lachs','thunfisch','garnelen','fischstäbchen','hering','makrele','seehecht','filet','steak','minuten','sülze','blutwurst','leberwurst','flügel','wing','wings','hähnchenflügel','rücken','schweinerücken','chickenw','entrecote','rindergulasch','asia chicken'],
-    veg:  ['apfel','äpfel','banane','orange','mandarine','traube','kirsche','erdbeere','himbeere','blaubeere','brombeere','pfirsich','birne','melone','wassermelone','honigmelone','zitrone','limette','avocado','mango','ananas','tomate','tomaten','gurke','kartoffel','zwiebel','knoblauch','möhre','karotte','salat','eisberg','spinat','brokkoli','broccoli','blumenkohl','paprika','aubergine','zucchini','kürbis','radieschen','lauch','sellerie','fenchel','kohl','weißkohl','rotkohl','spitzkohl','pilz','champignon','shiitake','porree','apfelsine','pflaume','aprikose','feige','granatapfel','kiwi','limone','grapefruit','obst','gemüse','bananen','äpfel','tomaten','gurken','kartoffeln','zwiebeln','karotten','salatkopf','kräuter','basilikum','petersilie','dill','schnittlauch','thymian','rosmarin','nektarine','nektarinen','pak choi','pakchoi','choi','galia','melone galia','melonen galia','chinakohl','möhren','paprika','heidelbeeren','bananen','mandarinen','clem','clementinen','kanzi'],
+    veg:  ['apfel','äpfel','banane','orange','mandarine','traube','kirsche','erdbeere','himbeere','blaubeere','brombeere','pfirsich','birne','melone','wassermelone','honigmelone','zitrone','limette','avocado','mango','ananas','tomate','tomaten','gurke','kartoffel','zwiebel','knoblauch','möhre','karotte','salat','eisberg','spinat','brokkoli','broccoli','blumenkohl','paprika','aubergine','zucchini','kürbis','radieschen','lauch','sellerie','fenchel','kohl','weißkohl','rotkohl','spitzkohl','pilz','champignon','shiitake','porree','apfelsine','pflaume','aprikose','feige','granatapfel','kiwi','limone','grapefruit','obst','gemüse','bananen','äpfel','tomaten','gurken','kartoffeln','zwiebeln','karotten','salatkopf','kräuter','basilikum','petersilie','dill','schnittlauch','thymian','rosmarin','nektarine','nektarinen','pak choi','pakchoi','choi','galia','melone galia','melonen galia','chinakohl','möhren','hren','paprika','heidelbeeren','bananen','mandarinen','clem','clementinen','kanzi'],
     dairy:['milch','vollmilch','fettarm','käse','frischkäse','mozzarella','emmentaler','gouda','feta','butterkäse','schnittkäse','streichkäse','butter','margarine','sahne','crème','joghurt','quark','pudding','kaka','milchdrink','kefir','buttermilch','sahnequark','fruchtjoghurt','trinkjoghurt','schmand','h-milch','häagen','dazs'],
     bread:['brot','brötchen','semmel','baguette','croissant','toast','buttertoast','toastbrot','brotscheibe','vollkornbrot','roggenbrot','brezel','kuchen','torte','gebäck','stollen','ciabatta','fladenbrot','pizzateig','sandwich','super-sandwich'],
     drink:['wasser','mineralwasser','stilles','sprudel','cola','fanta','sprite','saft','orangensaft','apfelsaft','apfelschorle','traubensaft','ananasssaft','tomatensaft','bier','pils','export','weizen','wein','rotwein','weißwein','sekt','kaffee','tee','kamillentee','pfefferminztee','limonade','eistee','energy','red bull','alkohol','schnaps','likör','milchshake','smoothie','kakao','pfirsich','eistee'],
-    snack:['schokolade','tafel','riegel','müsliriegel','chips','chipsfrisch','rocher','raffaello','nuss','nüsse','erdnuss','mandel','walnuss','haselnuss','cashew','keks','kekse','butterkeks','doppelkeks','bonbon','gummibär','lakritz','schokoriegel','eis','stieleis','eiscreme','müsli','cornflakes','knuspermüsli','praline','nougat','karamell','popcorn','salzstangen','lays','gesalzen','wal','heid','walnuss','heidelbeere','häagen','dazs'],
+    snack:['schokolade','tafel','riegel','müsliriegel','chips','chipsfrisch','pringles','oreo','magnum','rocher','raffaello','nuss','nüsse','erdnuss','mandel','walnuss','haselnuss','cashew','keks','kekse','butterkeks','doppelkeks','bonbon','gummibär','lakritz','schokoriegel','eis','wassereis','stieleis','eiscreme','müsli','cornflakes','knuspermüsli','praline','nougat','karamell','popcorn','salzstangen','lays','gesalzen','wal','heid','walnuss','heidelbeere','häagen','dazs'],
     daily:['shampoo','duschgel','seife','zahnpasta','deodorant','deo','rasierer','rasierschaum','taschentuch','taschentücher','küchenrolle','toilettenpapier','klopapier','watte','waschmittel','weichspüler','spülmittel','creme','lotion','handcreme','sonnencreme','spülung','zahnbürste','zahnseide','duschcreme','gesichtswasser','make-up','tampon','binde','windel','feuchttuch','reinigungsmittel','geschirrspülmittel','badreiniger','fensterreiniger'],
 };
 
 const SKIP_PATTERNS = [
-    /\b(REWE|ALDI|LIDL|EDEKA|PENNY|NETTO|KAUFLAND|DM|ROSSMANN|MÜLLER|BIO|MARKT)\b/i,
+    /\b(REWE|ALDI|LIDL|EDEKA|PENNY|NETTO|KAUFLAND|DM|ROSSMANN|MÜLLER|MARKT)\b/i,
     /\b(PREIS|PRICE)\s*(EUR|€)?\b/i,
     /\b(SUMME|TOTAL|GESAMT|ZWISCHENSUMME|SUBTOTAL)\b/i,
     /\b(MWST|UST|STEUER|VAT|ST\.|STEUER %)\b/i,
@@ -187,6 +194,7 @@ const SKIP_PATTERNS = [
     /\b(USt-Id|ST-NR|STEUERNUMMER|HANDELSREGISTER|TERMINAL|TA-NR|BNR)\b/i,
     /\b(BEDIENT|VERKÄUFER|KASSE|SCHALTER|FILIALE)\b/i,
     /\b(DANKE|VIELEN DANK|AUF WIEDERSEHEN|TSCHÜSS)\b/i,
+    /\b(YOU\s+(SAVED|EARNED)|POINTS?\s+FOR\s+THIS\s+PURCHASE)\b/i,
     /\b(BRUTTO|NETTO|STEUER)\b/i,
     /\b(SPAREN|RABATT|ANGEBOT|AKTION|PROZENT|COUPON|GUTSCHEIN)\b/i, // 促销信息
     /\b(SIE SPAREN|STRECKEN|DISCOUNT|%)\b/i,
@@ -415,9 +423,28 @@ function parseReceipt(lines) {
         return /^\d+\s+\d+[,.]\d{2}$/.test(t) || /^\d+\s*[\*xX]\s*\d+[,.]\d{2}$/.test(t);
     }
 
+    function parseDiscountLine(text) {
+        if (!/\b(rabatt|discount)\b/i.test(text)) return null;
+        const matches = [...text.matchAll(/(-\s*\d+[,.]\d{2})/g)];
+        if (matches.length === 0) return null;
+        const value = parseFloat(matches[matches.length - 1][0].replace(/\s+/g, '').replace(',', '.'));
+        if (Number.isNaN(value) || value >= 0) return null;
+        const name = text.substring(0, matches[matches.length - 1].index).trim() || 'Rabatt';
+        return { original: name, price: value };
+    }
+
     for (let rawLine of lines) {
         let line = rawLine.trim();
         if (!line || line.length < 2) continue;
+
+        const discount = parseDiscountLine(line);
+        if (discount) {
+            flushCurrent();
+            products.push(discount);
+            pendingName = null;
+            continue;
+        }
+
         if (SKIP_PATTERNS.some(p => p.test(line))) { flushCurrent(); pendingName = null; continue; }
 
         const cleanedLine = line.replace(/\s+[AB]\s*$/i, '').trim();
@@ -588,9 +615,9 @@ function translate(german) {
 function classify(german) {
     const lower = german.toLowerCase();
     if (/\b(pfand|pfandartikel)\b/.test(lower)) return 'other';
-    if (/(lays|chips|chipsfrisch|rocher|raffaello|häagen|dazs|keks|schokolade)/.test(lower)) return 'snack';
+    if (/(lays|chips|chipsfrisch|pringles|oreo|magnum|popcorn|rocher|raffaello|häagen|dazs|keks|schokolade|wassereis|sunlolly)/.test(lower)) return 'snack';
     if (/(pepsi|cola|eistee|saft|wasser|limonade)/.test(lower)) return 'drink';
-    if (/(flügel|hot wings|schweinerücken|entrecote|rindergulasch|asia chicken|sprehechicken)/.test(lower)) return 'meat';
+    if (/(flügel|hot wings|schweinerücken|entrecote|rindergulasch|asia chicken|sprehechicken|kutteln|pansen|bratwurst|nuggets)/.test(lower)) return 'meat';
     if (/(buttertoast|toast|sandwich|brot|brötchen)/.test(lower)) return 'bread';
     for (const [cat, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
         for (const kw of keywords) if (lower.includes(kw)) return cat;
