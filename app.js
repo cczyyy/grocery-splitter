@@ -58,14 +58,19 @@ const TRANSLATION_DICT = {
     'cremig': '奶油味',
     'lays': '乐事',
     'pepsi': '百事', 'cola': '可乐', 'pepsi cola': '百事可乐',
+    'coca-cola': '可口可乐', 'coca cola': '可口可乐',
     'pfand': '押金', 'pfandartikel': '押金',
+    'leergut': '退瓶', 'mopro': '奶制品退瓶',
+    'leergut mopro': '奶制品退瓶',
     'chipsfrisch': '奇奥薯片', 'chaka': 'Chaka口味',
     'rocher': '费列罗榛果巧克力', 'raffaello': '拉斐尔椰蓉巧克力', 'tafel': '板装',
-    'magnum': '梦龙', 'popcorn': '爆米花', 'pringles': '品客',
+    'magnum': '梦龙', 'popcorn': '爆米花', 'xox': 'XOX', 'pringles': '品客',
+    'original': '原味', 'herbs': '香草味', 'golden': '黄金味',
     'oreo': '奥利奥', 'vanilla': '香草', 'cream': '奶油',
     'sunlolly': 'Sun Lolly冰棒', 'wassereis': '冰棍',
     'rabatt': '折扣', 'xtra rabatt': 'Kaufland会员折扣',
     'hot wings': '辣翅',
+    'klc.müllbeutel': 'KLC垃圾袋', 'klc müllbeutel': 'KLC垃圾袋',
     'super-sandwich': '超级三明治',
     'schweinerücken': '猪背肉',
     'kfree.h-milch': '无乳糖常温奶', 'kfree h-milch': '无乳糖常温奶',
@@ -89,6 +94,7 @@ const TRANSLATION_DICT = {
     'filet': '里脊', 'steak': '牛排',
     'minutensteak': '快煎牛排', 'sülze': '肉冻', 'blutwurst': '血肠', 'leberwurst': '猪肝肠',
     'fisch': '鱼', 'lachs': '三文鱼', 'thunfisch': '金枪鱼', 'garnelen': '虾',
+    'garnelensch': '虾', 'prov': '普罗旺斯风味',
     'fischstäbchen': '鱼条', 'hering': '鲱鱼', 'makrele': '鲭鱼', 'seehecht': '鳕鱼',
     'apfel': '苹果', 'banane': '香蕉', 'orange': '橙子', 'mandarine': '橘子',
     'traube': '葡萄', 'kirsche': '樱桃', 'erdbeere': '草莓', 'himbeere': '覆盆子',
@@ -96,7 +102,7 @@ const TRANSLATION_DICT = {
     'melone': '甜瓜', 'wassermelone': '西瓜', 'honigmelone': '哈密瓜', 'zitrone': '柠檬',
     'limette': '青柠', 'avocado': '牛油果', 'mango': '芒果', 'ananas': '菠萝',
     'tomate': '番茄', 'gurke': '黄瓜', 'kartoffel': '土豆', 'zwiebel': '洋葱',
-    'knoblauch': '大蒜', 'möhre': '胡萝卜', 'karotte': '胡萝卜', 'salat': '生菜/沙拉',
+    'knoblauch': '大蒜', 'ingwer': '姜', 'möhre': '胡萝卜', 'karotte': '胡萝卜', 'salat': '生菜/沙拉',
     'eisberg': '球生菜', 'spinat': '菠菜', 'brokkoli': '西兰花', 'blumenkohl': '花菜',
     'paprika': '彩椒', 'aubergine': '茄子', 'zucchini': '西葫芦', 'kürbis': '南瓜',
     'radieschen': '萝卜', 'lauch': '大葱', 'sellerie': '芹菜', 'fenchel': '茴香',
@@ -130,6 +136,8 @@ const TRANSLATION_DICT = {
     'limonade': '柠檬水', 'eistee': '冰茶', 'energy': '能量饮料', 'red bull': '红牛',
     'alkohol': '酒精', 'schnaps': '烈酒', 'likör': '利口酒',
     'milchshake': '奶昔', 'smoothie': '果昔', 'kakao': '可可',
+    'nescafe': '雀巢咖啡', 'classic': '经典', 'zitron': '柠檬',
+    'saft citrus shield': '柑橘果汁', 'citrus': '柑橘',
     'schokolade': '巧克力', 'tafel': '板', 'riegel': '棒', 'müsliriegel': '麦片棒',
     'chips': '薯片', 'nuss': '坚果', 'nüsse': '坚果', 'erdnuss': '花生',
     'mandel': '杏仁', 'walnuss': '核桃', 'haselnuss': '榛子', 'cashew': '腰果',
@@ -140,6 +148,7 @@ const TRANSLATION_DICT = {
     'praline': '夹心巧克力', 'nougat': '牛轧糖', 'karamell': '焦糖',
     'popcorn': '爆米花', 'salzstangen': '盐条饼干',
     'shampoo': '洗发水', 'duschgel': '沐浴露', 'seife': '肥皂', 'zahnpasta': '牙膏',
+    'fairy': 'Fairy洗洁精', 'müllbeutel': '垃圾袋',
     'deodorant': '止汗剂', 'deo': '除臭剂', 'rasierer': '剃须刀', 'rasierschaum': '剃须泡沫',
     'taschentuch': '纸巾', 'taschentücher': '纸巾', 'küchenrolle': '厨房纸',
     'toilettenpapier': '卫生纸', 'klopapier': '卫生纸', 'watte': '化妆棉',
@@ -169,18 +178,18 @@ const TRANSLATION_DICT = {
     'chinakohl': '大白菜', 'möhren': '胡萝卜', 'paprika': '彩椒',
     'heidelbeeren': '蓝莓', 'bananen': '香蕉', 'mandarinen': '橘子',
     'tomaten': '番茄', 'rispen': '串', 'clem': '小柑橘', 'mand': '橘子',
-    'äpfel': '苹果', 'kanzi': 'Kanzi苹果', 'grün': '绿色',
+    'äpfel': '苹果', 'kanzi': 'Kanzi苹果', 'grün': '绿色', 'ta rot': '红色番茄',
     'hren': '胡萝卜',
 };
 
 const CATEGORY_KEYWORDS = {
-    meat: ['rind','schwein','hähnchen','huhn','pute','ente','lamm','kalb','leber','wurst','bratwurst','wiener','salami','schinken','speck','hack','frikadelle','kotelett','schnitzel','gulasch','braten','fisch','lachs','thunfisch','garnelen','fischstäbchen','hering','makrele','seehecht','filet','steak','minuten','sülze','blutwurst','leberwurst','flügel','wing','wings','hähnchenflügel','rücken','schweinerücken','chickenw','entrecote','rindergulasch','asia chicken'],
-    veg:  ['apfel','äpfel','banane','orange','mandarine','traube','kirsche','erdbeere','himbeere','blaubeere','brombeere','pfirsich','birne','melone','wassermelone','honigmelone','zitrone','limette','avocado','mango','ananas','tomate','tomaten','gurke','kartoffel','zwiebel','knoblauch','möhre','karotte','salat','eisberg','spinat','brokkoli','broccoli','blumenkohl','paprika','aubergine','zucchini','kürbis','radieschen','lauch','sellerie','fenchel','kohl','weißkohl','rotkohl','spitzkohl','pilz','champignon','shiitake','porree','apfelsine','pflaume','aprikose','feige','granatapfel','kiwi','limone','grapefruit','obst','gemüse','bananen','äpfel','tomaten','gurken','kartoffeln','zwiebeln','karotten','salatkopf','kräuter','basilikum','petersilie','dill','schnittlauch','thymian','rosmarin','nektarine','nektarinen','pak choi','pakchoi','choi','galia','melone galia','melonen galia','chinakohl','möhren','hren','paprika','heidelbeeren','bananen','mandarinen','clem','clementinen','kanzi'],
+    meat: ['rind','schwein','hähnchen','huhn','pute','ente','lamm','kalb','leber','wurst','bratwurst','wiener','salami','schinken','speck','hack','frikadelle','kotelett','schnitzel','gulasch','braten','fisch','lachs','thunfisch','garnelen','garnelensch','fischstäbchen','hering','makrele','seehecht','filet','steak','minuten','sülze','blutwurst','leberwurst','flügel','wing','wings','hähnchenflügel','rücken','schweinerücken','chickenw','entrecote','rindergulasch','asia chicken'],
+    veg:  ['apfel','äpfel','banane','orange','mandarine','traube','kirsche','erdbeere','himbeere','blaubeere','brombeere','pfirsich','birne','melone','wassermelone','honigmelone','zitrone','limette','avocado','mango','ananas','tomate','tomaten','ta rot','gurke','kartoffel','zwiebel','knoblauch','ingwer','möhre','karotte','salat','eisberg','spinat','brokkoli','broccoli','blumenkohl','paprika','aubergine','zucchini','kürbis','radieschen','lauch','sellerie','fenchel','kohl','weißkohl','rotkohl','spitzkohl','pilz','champignon','shiitake','porree','apfelsine','pflaume','aprikose','feige','granatapfel','kiwi','limone','grapefruit','obst','gemüse','bananen','äpfel','tomaten','gurken','kartoffeln','zwiebeln','karotten','salatkopf','kräuter','basilikum','petersilie','dill','schnittlauch','thymian','rosmarin','nektarine','nektarinen','pak choi','pakchoi','choi','galia','melone galia','melonen galia','chinakohl','möhren','hren','paprika','heidelbeeren','bananen','mandarinen','clem','clementinen','kanzi'],
     dairy:['milch','vollmilch','fettarm','käse','frischkäse','mozzarella','emmentaler','gouda','feta','butterkäse','schnittkäse','streichkäse','butter','margarine','sahne','crème','joghurt','quark','pudding','kaka','milchdrink','kefir','buttermilch','sahnequark','fruchtjoghurt','trinkjoghurt','schmand','h-milch','häagen','dazs'],
     bread:['brot','brötchen','semmel','baguette','croissant','toast','buttertoast','toastbrot','brotscheibe','vollkornbrot','roggenbrot','brezel','kuchen','torte','gebäck','stollen','ciabatta','fladenbrot','pizzateig','sandwich','super-sandwich'],
-    drink:['wasser','mineralwasser','stilles','sprudel','cola','fanta','sprite','saft','orangensaft','apfelsaft','apfelschorle','traubensaft','ananasssaft','tomatensaft','bier','pils','export','weizen','wein','rotwein','weißwein','sekt','kaffee','tee','kamillentee','pfefferminztee','limonade','eistee','energy','red bull','alkohol','schnaps','likör','milchshake','smoothie','kakao','pfirsich','eistee'],
+    drink:['wasser','mineralwasser','stilles','sprudel','cola','coca-cola','fanta','sprite','saft','orangensaft','apfelsaft','apfelschorle','traubensaft','ananasssaft','tomatensaft','bier','pils','export','weizen','wein','rotwein','weißwein','sekt','kaffee','nescafe','tee','kamillentee','pfefferminztee','limonade','eistee','energy','red bull','alkohol','schnaps','likör','milchshake','smoothie','kakao','pfirsich','eistee'],
     snack:['schokolade','tafel','riegel','müsliriegel','chips','chipsfrisch','pringles','oreo','magnum','rocher','raffaello','nuss','nüsse','erdnuss','mandel','walnuss','haselnuss','cashew','keks','kekse','butterkeks','doppelkeks','bonbon','gummibär','lakritz','schokoriegel','eis','wassereis','stieleis','eiscreme','müsli','cornflakes','knuspermüsli','praline','nougat','karamell','popcorn','salzstangen','lays','gesalzen','wal','heid','walnuss','heidelbeere','häagen','dazs'],
-    daily:['shampoo','duschgel','seife','zahnpasta','deodorant','deo','rasierer','rasierschaum','taschentuch','taschentücher','küchenrolle','toilettenpapier','klopapier','watte','waschmittel','weichspüler','spülmittel','creme','lotion','handcreme','sonnencreme','spülung','zahnbürste','zahnseide','duschcreme','gesichtswasser','make-up','tampon','binde','windel','feuchttuch','reinigungsmittel','geschirrspülmittel','badreiniger','fensterreiniger'],
+    daily:['shampoo','duschgel','seife','zahnpasta','deodorant','deo','rasierer','rasierschaum','taschentuch','taschentücher','küchenrolle','toilettenpapier','klopapier','watte','waschmittel','weichspüler','spülmittel','fairy','müllbeutel','muellbeutel','creme','lotion','handcreme','sonnencreme','spülung','zahnbürste','zahnseide','duschcreme','gesichtswasser','make-up','tampon','binde','windel','feuchttuch','reinigungsmittel','geschirrspülmittel','badreiniger','fensterreiniger'],
 };
 
 const SKIP_PATTERNS = [
@@ -423,13 +432,17 @@ function parseReceipt(lines) {
         return /^\d+\s+\d+[,.]\d{2}$/.test(t) || /^\d+\s*[\*xX]\s*\d+[,.]\d{2}$/.test(t);
     }
 
-    function parseDiscountLine(text) {
-        if (!/\b(rabatt|discount)\b/i.test(text)) return null;
+    function parseAdjustmentLine(text, pending) {
+        const context = `${pending || ''} ${text}`;
+        if (!/\b(rabatt|discount|leergut|pfand)\b/i.test(context)) return null;
         const matches = [...text.matchAll(/(-\s*\d+[,.]\d{2})/g)];
         if (matches.length === 0) return null;
         const value = parseFloat(matches[matches.length - 1][0].replace(/\s+/g, '').replace(',', '.'));
         if (Number.isNaN(value) || value >= 0) return null;
-        const name = text.substring(0, matches[matches.length - 1].index).trim() || 'Rabatt';
+        let name = text.substring(0, matches[matches.length - 1].index).trim();
+        name = name.replace(/\b\d+\s*[\*xX]\s*\d+[,.]\d{2}\b/g, '').trim();
+        name = name.replace(/[*\-=]/g, ' ').replace(/\s+/g, ' ').trim();
+        if (!name || /^\d+[,.]?\d*$/.test(name)) name = pending || '负数调整';
         return { original: name, price: value };
     }
 
@@ -437,10 +450,10 @@ function parseReceipt(lines) {
         let line = rawLine.trim();
         if (!line || line.length < 2) continue;
 
-        const discount = parseDiscountLine(line);
-        if (discount) {
+        const adjustment = parseAdjustmentLine(line, pendingName);
+        if (adjustment) {
             flushCurrent();
-            products.push(discount);
+            products.push(adjustment);
             pendingName = null;
             continue;
         }
@@ -615,6 +628,7 @@ function translate(german) {
 function classify(german) {
     const lower = german.toLowerCase();
     if (/\b(pfand|pfandartikel)\b/.test(lower)) return 'other';
+    if (/(fairy|müllbeutel|muellbeutel)/.test(lower)) return 'daily';
     if (/(lays|chips|chipsfrisch|pringles|oreo|magnum|popcorn|rocher|raffaello|häagen|dazs|keks|schokolade|wassereis|sunlolly)/.test(lower)) return 'snack';
     if (/(pepsi|cola|eistee|saft|wasser|limonade)/.test(lower)) return 'drink';
     if (/(flügel|hot wings|schweinerücken|entrecote|rindergulasch|asia chicken|sprehechicken|kutteln|pansen|bratwurst|nuggets)/.test(lower)) return 'meat';
