@@ -58,7 +58,7 @@ const TRANSLATION_DICT = {
     'cremig': '奶油味',
     'lays': '乐事',
     'pepsi': '百事', 'cola': '可乐', 'pepsi cola': '百事可乐',
-    'coca-cola': '可口可乐', 'coca cola': '可口可乐',
+    'coca-cola': '可口可乐', 'coca cola': '可口可乐', 'dose': '罐装',
     'pfand': '押金', 'pfandartikel': '押金',
     'leergut': '退瓶', 'mopro': '奶制品退瓶',
     'leergut mopro': '奶制品退瓶',
@@ -84,7 +84,7 @@ const TRANSLATION_DICT = {
     'rind': '牛肉', 'rindfleisch': '牛肉', 'schwein': '猪肉', 'schweinefleisch': '猪肉',
     'entrecote': '肋眼牛排', 'rindergulasch': '炖牛肉', 'asia chicken': '亚洲风味鸡肉',
     'kutteln': '牛肚', 'pansen': '牛肚', 'bratwurst': '烤香肠',
-    'nuggets': '鸡块', 'chicken-nuggets': '鸡块',
+    'nuggets': '鸡块', 'chicken-nuggets': '鸡块', 'crunchychicken': '脆皮鸡',
     'hähnchenbrust': '鸡胸肉', 'hähnchenkeule': '鸡腿',
     'huhn': '鸡', 'pute': '火鸡', 'putebrust': '火鸡胸肉',
     'ente': '鸭', 'lamm': '羊肉', 'kalb': '小牛肉', 'leber': '肝',
@@ -111,7 +111,7 @@ const TRANSLATION_DICT = {
     'apfelsine': '橙子', 'pflaume': '李子', 'aprikose': '杏', 'feige': '无花果',
     'granatapfel': '石榴', 'kiwi': '猕猴桃', 'limone': '青柠', 'grapefruit': '柚子',
     'obst': '水果', 'gemüse': '蔬菜', 'gemischt': '混合',
-    'vollmilch': '全脂牛奶', 'fettarme milch': '低脂牛奶',
+    'frischmilch': '鲜牛奶', 'vollmilch': '全脂牛奶', 'fettarme milch': '低脂牛奶',
     'käse': '奶酪', 'frischkäse': '奶油奶酪', 'mozzarella': '马苏里拉',
     'emmentaler': '埃曼塔尔奶酪', 'gouda': '高达奶酪', 'feta': '菲达奶酪',
     'butterkäse': '黄油奶酪', 'schnittkäse': '切片奶酪', 'streichkäse': '涂抹奶酪',
@@ -148,7 +148,7 @@ const TRANSLATION_DICT = {
     'praline': '夹心巧克力', 'nougat': '牛轧糖', 'karamell': '焦糖',
     'popcorn': '爆米花', 'salzstangen': '盐条饼干',
     'shampoo': '洗发水', 'duschgel': '沐浴露', 'seife': '肥皂', 'zahnpasta': '牙膏',
-    'fairy': 'Fairy洗洁精', 'müllbeutel': '垃圾袋',
+    'fairy': 'Fairy洗洁精', 'müllbeutel': '垃圾袋', 'oug': '果蔬袋', 'beutel': '袋子',
     'deodorant': '止汗剂', 'deo': '除臭剂', 'rasierer': '剃须刀', 'rasierschaum': '剃须泡沫',
     'taschentuch': '纸巾', 'taschentücher': '纸巾', 'küchenrolle': '厨房纸',
     'toilettenpapier': '卫生纸', 'klopapier': '卫生纸', 'watte': '化妆棉',
@@ -435,10 +435,16 @@ function parseReceipt(lines) {
     function parseAdjustmentLine(text, pending) {
         const context = `${pending || ''} ${text}`;
         if (!/\b(rabatt|discount|leergut|pfand)\b/i.test(context)) return null;
-        const matches = [...text.matchAll(/(-\s*\d+[,.]\d{2})/g)];
+        const isLeergut = /\bleergut\b/i.test(context);
+        const isDiscount = /\b(rabatt|discount)\b/i.test(context);
+        const pricePattern = (isLeergut || isDiscount) ? /(-?\s*\d+[,.]\d{2})/g : /(-\s*\d+[,.]\d{2})/g;
+        const matches = [...text.matchAll(pricePattern)];
         if (matches.length === 0) return null;
-        const value = parseFloat(matches[matches.length - 1][0].replace(/\s+/g, '').replace(',', '.'));
-        if (Number.isNaN(value) || value >= 0) return null;
+        let value = parseFloat(matches[matches.length - 1][0].replace(/\s+/g, '').replace(',', '.'));
+        if (Number.isNaN(value)) return null;
+        if (isLeergut) value = -Math.abs(value);
+        if (isDiscount && value > 0) value = -value;
+        if (value >= 0) return null;
         let name = text.substring(0, matches[matches.length - 1].index).trim();
         name = name.replace(/\b\d+\s*[\*xX]\s*\d+[,.]\d{2}\b/g, '').trim();
         name = name.replace(/[*\-=]/g, ' ').replace(/\s+/g, ' ').trim();
@@ -628,10 +634,10 @@ function translate(german) {
 function classify(german) {
     const lower = german.toLowerCase();
     if (/\b(pfand|pfandartikel)\b/.test(lower)) return 'other';
-    if (/(fairy|müllbeutel|muellbeutel)/.test(lower)) return 'daily';
+    if (/(fairy|müllbeutel|muellbeutel|oug beutel|beutel)/.test(lower)) return 'daily';
     if (/(lays|chips|chipsfrisch|pringles|oreo|magnum|popcorn|rocher|raffaello|häagen|dazs|keks|schokolade|wassereis|sunlolly)/.test(lower)) return 'snack';
     if (/(pepsi|cola|eistee|saft|wasser|limonade)/.test(lower)) return 'drink';
-    if (/(flügel|hot wings|schweinerücken|entrecote|rindergulasch|asia chicken|sprehechicken|kutteln|pansen|bratwurst|nuggets)/.test(lower)) return 'meat';
+    if (/(flügel|hot wings|schweinerücken|entrecote|rindergulasch|asia chicken|sprehechicken|kutteln|pansen|bratwurst|nuggets|crunchychicken)/.test(lower)) return 'meat';
     if (/(buttertoast|toast|sandwich|brot|brötchen)/.test(lower)) return 'bread';
     for (const [cat, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
         for (const kw of keywords) if (lower.includes(kw)) return cat;
