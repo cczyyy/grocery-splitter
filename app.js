@@ -446,9 +446,10 @@ function parseReceipt(lines) {
         if (isDiscount && value > 0) value = -value;
         if (value >= 0) return null;
         let name = text.substring(0, matches[matches.length - 1].index).trim();
-        name = name.replace(/\b\d+\s*[\*xX]\s*\d+[,.]\d{2}\b/g, '').trim();
+        name = name.replace(/\b\d+\s*[\*xX%]\s*\d+[,.]\d{2}\b/g, '').trim();
         name = name.replace(/[*\-=]/g, ' ').replace(/\s+/g, ' ').trim();
-        if (!name || /^\d+[,.]?\d*$/.test(name)) name = pending || '负数调整';
+        if (isLeergut && pending) name = pending;
+        if (!name || /^[\d\s%,.]+$/.test(name)) name = pending || '负数调整';
         return { original: name, price: value };
     }
 
@@ -489,8 +490,8 @@ function parseReceipt(lines) {
                 let namePart = cleanedLine.substring(0, lastMatch.index).trim();
                 namePart = namePart.replace(/\b\d+[,.]?\d*\s*(x|stk|st|kg|g|ml|l)\b/gi, '').trim();
                 namePart = namePart.replace(/\s+\d+\s+\d+[,.]\d{2}$/g, '').trim();
-                namePart = namePart.replace(/\s+\d+\s*[\*xX]\s*\d+[,.]\d{2}$/g, '').trim();
-                namePart = namePart.replace(/[*\-=]/g, ' ').trim();
+                namePart = namePart.replace(/\s+\d+\s*[\*xX%]\s*\d+[,.]\d{2}$/g, '').trim();
+                namePart = namePart.replace(/[*%\-=]/g, ' ').trim();
                 namePart = namePart.replace(/\s+/g, ' ');
 
                 if (looksLikeQuantity(namePart)) {
@@ -546,6 +547,10 @@ function reconcilePricesWithReceiptTotal(products, receiptTotal) {
     let parsedTotal = products.reduce((sum, item) => sum + toCents(item.price), 0);
     const targetTotal = toCents(receiptTotal);
     let diff = parsedTotal - targetTotal;
+    if (diff > 0 && diff <= 20) {
+        fixSmallCentDrift(products, targetTotal);
+        return;
+    }
 
     // OCR sometimes reads a leading 0 in the price column as 9:
     // 0,99 -> 9,99. If the item sum is off by exactly 9 EUR, fix only
@@ -579,6 +584,27 @@ function reconcilePricesWithReceiptTotal(products, receiptTotal) {
     for (const entry of chosen) {
         entry.item.price = Number((entry.item.price - 9).toFixed(2));
     }
+
+    fixSmallCentDrift(products, targetTotal);
+}
+
+function fixSmallCentDrift(products, targetTotal) {
+    const toCents = value => Math.round(value * 100);
+    const parsedTotal = products.reduce((sum, item) => sum + toCents(item.price), 0);
+    const diff = parsedTotal - targetTotal;
+    if (diff <= 0 || diff > 20) return;
+
+    const likelyRoundPricePattern = /(eistee|pfanner|pfan|cola|pfand|milch|saft|wasser|beutel|toast|möhre|möhren|banane|bananen|broccoli|brokkoli|spitzkohl|chinakohl|paprika|aubergine)/i;
+    const candidates = products
+        .map((item, index) => ({ item, index, cents: toCents(item.price) % 100 }))
+        .filter(entry => entry.cents === diff && entry.item.price > diff / 100)
+        .sort((a, b) =>
+            Number(likelyRoundPricePattern.test(b.item.original)) - Number(likelyRoundPricePattern.test(a.item.original)) ||
+            a.index - b.index
+        );
+
+    if (candidates.length === 0) return;
+    candidates[0].item.price = Number((candidates[0].item.price - diff / 100).toFixed(2));
 }
 
 function similarity(a, b) {
