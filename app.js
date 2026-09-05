@@ -370,6 +370,17 @@ async function runOCR(imageUrl) {
         els.debugText.value = result.data.text;
         const lines = result.data.text.split('\n');
         const parsed = parseReceipt(lines);
+        const receiptTotal = extractReceiptTotal(lines);
+        const parsedTotal = parsed.reduce((sum, p) => sum + Math.round(p.price * 100), 0) / 100;
+        const corrections = parsed.filter(p => p.ocrPrice !== p.price)
+            .map(p => `${p.original}: ${p.ocrPrice.toFixed(2)} → ${p.price.toFixed(2)} EUR（按小票总额推定，请核对）`);
+        els.debugText.value += '\n\n--- 价格核对 ---\n' + corrections.join('\n') +
+            `\n商品合计：${parsedTotal.toFixed(2)} EUR` +
+            (receiptTotal == null ? '\n未识别到小票总额' :
+                `\n小票总额：${receiptTotal.toFixed(2)} EUR\n差额：${(parsedTotal - receiptTotal).toFixed(2)} EUR`);
+        els.progressText.textContent = receiptTotal != null && Math.round(parsedTotal * 100) !== Math.round(receiptTotal * 100)
+            ? `价格待核对：商品合计 ${parsedTotal.toFixed(2)} EUR，小票总额 ${receiptTotal.toFixed(2)} EUR。请对照原图检查价格。`
+            : '';
 
         items = parsed.map(p => ({
             id: nextId++,
@@ -383,7 +394,7 @@ async function runOCR(imageUrl) {
         updateDefaultOwners();
         recalcAll();
 
-        els.progressSection.classList.add('hidden');
+        els.progressSection.classList.toggle('hidden', !els.progressText.textContent);
         els.resultSection.classList.remove('hidden');
         render();
         requestAnimationFrame(() => {
@@ -521,6 +532,7 @@ function parseReceipt(lines) {
         }
     }
     flushCurrent();
+    products.forEach(p => { p.ocrPrice = p.price; });
     reconcilePricesWithReceiptTotal(products, receiptTotal);
     if (products.length === 0) alert('未能自动识别出商品，请尝试截图更清晰或手动添加。');
     return products;
@@ -552,30 +564,16 @@ function reconcilePricesWithReceiptTotal(products, receiptTotal) {
         return;
     }
 
-    // OCR sometimes reads a leading 0 in the price column as 9:
-    // 0,99 -> 9,99. If the item sum is off by exactly 9 EUR, fix only
-    // suspicious 9.xx prices and only when the receipt total proves it.
+    // A misread units digit adds 9 EUR: 0.99 -> 9.99 or 10.02 -> 19.02.
+    // Keep ambiguous candidates unchanged; a matching sum alone cannot locate the error.
     const mistakes = Math.round(diff / 900);
     if (mistakes <= 0 || Math.abs(diff - mistakes * 900) > 75) return;
 
-    const cheapItemPattern = /(chips|chipsfrisch|chaka|cola|pfand|toast|broccoli|brokkoli|möhre|möhren|tomate|tomaten|aubergine|banane|bananen|mandarine|äpfel|apfel|keks|eistee|milch|paprika|spitzkohl|chinakohl|choi|pak|clem|mand)/i;
     const candidates = products
-        .map((item, index) => ({
-            item,
-            index,
-            likelyCheap: cheapItemPattern.test(item.original),
-            // Meat and larger prepared items can genuinely cost 9.xx; avoid
-            // touching them unless there is no other way to match the receipt.
-            likelyExpensive: /(entrecote|rinder|gulasch|schwein|flügel|wings|chicken|steak|fleisch)/i.test(item.original)
-        }))
-        .filter(entry => entry.item.price >= 9 && entry.item.price < 10)
-        .sort((a, b) =>
-            Number(b.likelyCheap) - Number(a.likelyCheap) ||
-            Number(a.likelyExpensive) - Number(b.likelyExpensive) ||
-            a.index - b.index
-        );
+        .map(item => ({ item }))
+        .filter(entry => entry.item.price > 0 && Math.floor(toCents(entry.item.price) / 100) % 10 === 9);
 
-    if (candidates.length < mistakes) return;
+    if (candidates.length !== mistakes) return;
 
     const chosen = candidates.slice(0, mistakes);
     const correctedTotal = parsedTotal - chosen.length * 900;
