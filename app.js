@@ -301,7 +301,7 @@ els.defaultSplitTags.addEventListener('click', (e) => {
         render();
     }
 });
-els.addRowBtn.addEventListener('click', () => { addItem({ original: '', translated: '', category: 'other', price: 0, owner: '' }); render(); });
+els.addRowBtn.addEventListener('click', () => { addItem({ original: '', translated: '', category: 'other', price: 0, owner: '' }); recalcAll(); render(); });
 els.copyBtn.addEventListener('click', copySummary);
 els.exportCsvBtn.addEventListener('click', exportCsv);
 els.resetBtn.addEventListener('click', () => {
@@ -382,13 +382,16 @@ async function runOCR(imageUrl) {
             ? `价格待核对：商品合计 ${parsedTotal.toFixed(2)} EUR，小票总额 ${receiptTotal.toFixed(2)} EUR。请对照原图检查价格。`
             : '';
 
+        const firstId = nextId;
         items = parsed.map(p => ({
             id: nextId++,
             original: p.original,
             translated: translate(p.original),
             category: classify(p.original),
             price: p.price,
-            owner: ''
+            owner: '',
+            ownerManual: false,
+            discountFor: p.discountIndex == null ? null : firstId + p.discountIndex
         }));
 
         updateDefaultOwners();
@@ -430,7 +433,7 @@ function parseReceipt(lines) {
 
     function flushCurrent() {
         if (current && current.price != null && current.price > 0) {
-            products.push({ original: current.original.trim(), price: current.price });
+            products.push({ original: current.original.trim(), price: current.price, rawPrice: current.rawPrice });
         }
         current = null;
     }
@@ -461,16 +464,23 @@ function parseReceipt(lines) {
         name = name.replace(/[*\-=]/g, ' ').replace(/\s+/g, ' ').trim();
         if (isLeergut && pending) name = pending;
         if (!name || /^[\d\s%,.]+$/.test(name)) name = pending || '负数调整';
-        return { original: name, price: value };
+        return { original: name, price: value, rawPrice: matches[matches.length - 1][0].replace(/\s+/g, '') };
     }
 
     for (let rawLine of lines) {
         let line = rawLine.trim();
         if (!line || line.length < 2) continue;
+        if (/^(summe|total|gesamt|kartenzahlung|steuer)\b/i.test(line)) {
+            flushCurrent();
+            break;
+        }
 
         const adjustment = parseAdjustmentLine(line, pendingName);
         if (adjustment) {
             flushCurrent();
+            if (/rabatt|discount/i.test(adjustment.original) && products.length && products[products.length - 1].price > 0) {
+                adjustment.discountIndex = products.length - 1;
+            }
             products.push(adjustment);
             pendingName = null;
             continue;
@@ -493,7 +503,7 @@ function parseReceipt(lines) {
             continue;
         }
 
-        const priceMatches = [...cleanedLine.matchAll(/(\d+[,.]\d{2})/g)];
+        const priceMatches = [...cleanedLine.matchAll(/(\d+[,.]\d{2,})(?!\d)/g)];
         if (priceMatches.length > 0) {
             const lastMatch = priceMatches[priceMatches.length - 1];
             const price = parseFloat(lastMatch[0].replace(',', '.'));
@@ -510,6 +520,7 @@ function parseReceipt(lines) {
                     if (target) {
                         target.original += ' (' + namePart + ')';
                         target.price = price;
+                        target.rawPrice = lastMatch[0];
                         current = target;
                         pendingName = null;
                         continue;
@@ -522,7 +533,7 @@ function parseReceipt(lines) {
                 }
                 if (namePart && namePart.length >= 2 && !/^\d+$/.test(namePart)) {
                     flushCurrent();
-                    current = { original: namePart, price: price };
+                    current = { original: namePart, price: price, rawPrice: lastMatch[0] };
                 }
             }
         } else {
@@ -555,12 +566,12 @@ function extractReceiptTotal(lines) {
 
 function reconcilePricesWithReceiptTotal(products, receiptTotal) {
     if (!receiptTotal || products.length === 0) return;
+    if (reconcileMalformedPrices(products, receiptTotal)) return;
     const toCents = value => Math.round(value * 100);
     let parsedTotal = products.reduce((sum, item) => sum + toCents(item.price), 0);
     const targetTotal = toCents(receiptTotal);
     let diff = parsedTotal - targetTotal;
     if (diff > 0 && diff <= 20) {
-        fixSmallCentDrift(products, targetTotal);
         return;
     }
 
@@ -583,26 +594,54 @@ function reconcilePricesWithReceiptTotal(products, receiptTotal) {
         entry.item.price = Number((entry.item.price - 9).toFixed(2));
     }
 
-    fixSmallCentDrift(products, targetTotal);
 }
 
-function fixSmallCentDrift(products, targetTotal) {
-    const toCents = value => Math.round(value * 100);
-    const parsedTotal = products.reduce((sum, item) => sum + toCents(item.price), 0);
-    const diff = parsedTotal - targetTotal;
-    if (diff <= 0 || diff > 20) return;
-
-    const likelyRoundPricePattern = /(eistee|pfanner|pfan|cola|pfand|milch|saft|wasser|beutel|toast|möhre|möhren|banane|bananen|broccoli|brokkoli|spitzkohl|chinakohl|paprika|aubergine)/i;
-    const candidates = products
-        .map((item, index) => ({ item, index, cents: toCents(item.price) % 100 }))
-        .filter(entry => entry.cents === diff && entry.item.price > diff / 100)
-        .sort((a, b) =>
-            Number(likelyRoundPricePattern.test(b.item.original)) - Number(likelyRoundPricePattern.test(a.item.original)) ||
-            a.index - b.index
-        );
-
-    if (candidates.length === 0) return;
-    candidates[0].item.price = Number((candidates[0].item.price - diff / 100).toFixed(2));
+function reconcileMalformedPrices(products, receiptTotal) {
+    const target = Math.round(receiptTotal * 100);
+    const base = products.reduce((sum, p) => sum + Math.round(p.price * 100), 0);
+    if (base === target) return true;
+    const candidates = [];
+    for (const item of products) {
+        const raw = (item.rawPrice || '').replace(',', '.');
+        const options = new Set([Math.round(item.price * 100)]);
+        // Extra 9 beside a zero, including the sign/zero boundary in discounts.
+        if (/^09\.\d{2}$/.test(raw)) options.add(Math.round(Number(raw.slice(2)) * 100));
+        if (/^-90\.\d{2}$/.test(raw) && /rabatt|discount/i.test(item.original)) {
+            options.add(Math.round(-Number(raw.slice(3)) * 100));
+        }
+        // Three decimal digits are malformed for receipt prices, not kg weights.
+        // Try deleting one duplicated OCR digit and reading remaining 9s as 0s.
+        if (/^\d+\.\d{3}$/.test(raw)) {
+            const [whole, fraction] = raw.split('.');
+            for (let i = 0; i < 3; i++) {
+                if (fraction[i] !== fraction[i - 1] && fraction[i] !== fraction[i + 1]) continue;
+                const short = fraction.slice(0, i) + fraction.slice(i + 1);
+                for (let mask = 0; mask < 4; mask++) {
+                    const digits = [...short].map((c, j) => c === '9' && (mask & (1 << j)) ? '0' : c).join('');
+                    options.add(Number(whole) * 100 + Number(digits));
+                }
+            }
+        }
+        if (options.size > 1) candidates.push({ item, options: [...options] });
+    }
+    // Bound the search on noisy input; commit only a unique, exact combination.
+    if (!candidates.length || candidates.reduce((n, c) => n * c.options.length, 1) > 65536) return false;
+    const solutions = [];
+    function search(index, total, values) {
+        if (solutions.length > 1) return;
+        if (index === candidates.length) {
+            if (total === target) solutions.push(values);
+            return;
+        }
+        const candidate = candidates[index];
+        for (const value of candidate.options) {
+            search(index + 1, total + value - Math.round(candidate.item.price * 100), [...values, value]);
+        }
+    }
+    search(0, base, []);
+    if (solutions.length !== 1) return false;
+    candidates.forEach((c, i) => { c.item.price = solutions[0][i] / 100; });
+    return true;
 }
 
 function similarity(a, b) {
@@ -673,33 +712,53 @@ function updateDefaultOwners() {
     const sharedCats = new Set();
     els.defaultSplitTags.querySelectorAll('.tag.active').forEach(t => sharedCats.add(t.dataset.cat));
     items.forEach(item => {
-        if (sharedCats.has(item.category)) item.owner = '';
-        else item.owner = '';
+        if (!item.ownerManual && item.discountFor == null) item.owner = sharedCats.has(item.category) ? '' : 'A';
+    });
+    syncDiscountOwners();
+}
+
+function syncDiscountOwners() {
+    items.forEach(item => {
+        const parent = items.find(p => p.id === item.discountFor);
+        if (parent && !item.ownerManual) item.owner = parent.owner;
     });
 }
 
+function calculateSettlement(list) {
+    let total = 0, shared = 0, a = 0, b = 0;
+    for (const item of list) {
+        const cents = Math.round(item.price * 100);
+        total += cents;
+        if (item.owner === 'A') a += cents;
+        else if (item.owner === 'B') b += cents;
+        else shared += cents;
+    }
+    const sharedA = Math.ceil(shared / 2);
+    const sharedB = shared - sharedA;
+    return { total: total / 100, shared: shared / 100, a: (a + sharedA) / 100,
+        b: (b + sharedB) / 100, sharedA: sharedA / 100, sharedB: sharedB / 100 };
+}
+
 function recalcAll() {
-    const count = parseInt(els.splitCount.value) || 2;
+    els.splitCount.value = 2;
+    syncDiscountOwners();
+    let sharedCents = 0;
     items.forEach(item => {
-        item.splitPrice = item.owner === '' ? item.price / count : 0;
+        const before = Math.ceil(sharedCents / 2);
+        if (item.owner === '') sharedCents += Math.round(item.price * 100);
+        item.splitPrice = item.owner === '' ? (Math.ceil(sharedCents / 2) - before) / 100 : 0;
+        item.splitPriceB = item.owner === '' ? Math.round(item.price * 100) / 100 - item.splitPrice : 0;
         item.exclusivePrice = item.owner !== '' ? item.price : 0;
     });
     updateSummary();
 }
 
 function updateSummary() {
-    const count = parseInt(els.splitCount.value) || 2;
-    const total = items.reduce((s, i) => s + i.price, 0);
-    const sharedTotal = items.filter(i => i.owner === '').reduce((s, i) => s + i.price, 0);
-    const aTotal = items.filter(i => i.owner === 'A').reduce((s, i) => s + i.price, 0);
-    const bTotal = items.filter(i => i.owner === 'B').reduce((s, i) => s + i.price, 0);
-    const sharedPerPerson = count > 0 ? sharedTotal / count : 0;
-    const aPays = sharedPerPerson + aTotal;
-    const bPays = sharedPerPerson + bTotal;
-    els.totalAmount.textContent = fmt(total);
-    els.sharedAmount.textContent = fmt(sharedTotal);
-    els.personAAmount.textContent = fmt(aPays);
-    els.personBAmount.textContent = fmt(bPays);
+    const result = calculateSettlement(items);
+    els.totalAmount.textContent = fmt(result.total);
+    els.sharedAmount.textContent = fmt(result.shared);
+    els.personAAmount.textContent = fmt(result.a);
+    els.personBAmount.textContent = fmt(result.b);
 }
 
 function fmt(n) { return '€' + (typeof n === 'number' ? n.toFixed(2) : '0.00'); }
@@ -707,7 +766,7 @@ function fmt(n) { return '€' + (typeof n === 'number' ? n.toFixed(2) : '0.00')
 // ==================== AI 翻译 ====================
 
 function buildAiPrompt(products) {
-    const list = products.map((p, i) => `${i + 1}. ${p.original}`).join('\n');
+    const list = products.map(p => `id=${p.id}: ${p.original}`).join('\n');
     return `你是一位精通德语超市商品的助手。请对以下账单商品进行翻译和分类。\n\n规则：\n1. 翻译为简洁的中文日常说法\n2. 类别必须是以下之一：肉类、蔬果、奶制品、面包、饮料、零食、日用品、其他\n3. 返回严格的 JSON 数组，不要有任何额外文字或 markdown 代码块标记\n\n商品列表：\n${list}\n\n返回格式：\n[\n  {"original": "...", "translated": "...", "category": "..."},\n  ...\n]`;
 }
 
@@ -718,12 +777,13 @@ async function runAiTranslate(currentItems) {
     if (!baseUrl) baseUrl = 'https://api.deepseek.com';
     if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
     const model = els.apiModel.value.trim() || 'deepseek-chat';
+    const snapshot = currentItems.map(p => ({ ...p }));
     setAiStatus('AI 翻译中...', 'loading');
     try {
         const response = await fetch(`${baseUrl}/chat/completions`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-            body: JSON.stringify({ model: model, messages: [{ role: 'user', content: buildAiPrompt(currentItems) }], temperature: 0.3 })
+            body: JSON.stringify({ model: model, messages: [{ role: 'user', content: buildAiPrompt(snapshot) + '\n每条结果必须返回对应的数字 id，重复商品也分别返回。' }], temperature: 0.3 })
         });
         if (!response.ok) {
             const errText = await response.text().catch(() => '');
@@ -737,13 +797,19 @@ async function runAiTranslate(currentItems) {
             parsed = JSON.parse(content.replace(/```json\s*|\s*```/g, '').trim());
         } catch (e) { throw new Error('AI 返回的 JSON 格式不正确'); }
         if (!Array.isArray(parsed)) throw new Error('AI 返回的不是数组');
+        if (currentItems !== items) return;
         let updatedCount = 0;
+        const used = new Set();
         parsed.forEach(entry => {
-            if (!entry.original) return;
-            const item = currentItems.find(it => it.original.toLowerCase() === entry.original.toLowerCase() || similarity(it.original.toLowerCase(), entry.original.toLowerCase()) > 0.8);
+            if (!entry || typeof entry !== 'object') return;
+            const source = entry.id != null ? snapshot.find(it => it.id === Number(entry.id)) :
+                snapshot.find(it => !used.has(it.id) && typeof entry.original === 'string' && it.original.toLowerCase() === entry.original.toLowerCase());
+            if (!source || used.has(source.id)) return;
+            used.add(source.id);
+            const item = currentItems.find(it => it.id === source.id && it.original === source.original);
             if (item) {
-                if (entry.translated) { item.translated = entry.translated; updatedCount++; }
-                if (entry.category) {
+                if (typeof entry.translated === 'string' && item.translated === source.translated) { item.translated = entry.translated; updatedCount++; }
+                if (typeof entry.category === 'string' && item.category === source.category) {
                     const catKey = AI_CAT_MAP[entry.category] || AI_CAT_MAP[entry.category.toLowerCase()];
                     if (catKey) item.category = catKey;
                 }
@@ -798,7 +864,7 @@ function render() {
                     <option value="B" ${item.owner === 'B' ? 'selected' : ''}>${PEOPLE.B}独占</option>
                 </select>
             </td>
-            <td data-label="公摊价 (€)">${item.owner === '' ? fmt(item.splitPrice) : '-'}</td>
+            <td data-label="公摊价 (€)">${item.owner === '' ? `${PEOPLE.A}: ${fmt(item.splitPrice)} / ${PEOPLE.B}: ${fmt(item.splitPriceB)}` : '-'}</td>
             <td data-label="独占价 (€)">${item.owner !== '' ? fmt(item.exclusivePrice) : '-'}</td>
             <td data-label="删除"><button class="delete-btn" data-id="${item.id}" aria-label="删除第 ${idx + 1} 个商品">🗑️</button></td>
         `;
@@ -820,6 +886,7 @@ function onItemChange(e) {
     let value = el.value;
     if (field === 'price') value = parseFloat(value) || 0;
     item[field] = value;
+    if (field === 'owner') item.ownerManual = true;
     if (field === 'original' && !item.translated) {
         item.translated = translate(value);
         item.category = classify(value);
@@ -830,7 +897,7 @@ function onItemChange(e) {
 
 function onDelete(e) {
     const id = parseInt(e.target.dataset.id);
-    items = items.filter(i => i.id !== id);
+    items = items.filter(i => i.id !== id && i.discountFor !== id);
     recalcAll();
     render();
 }
@@ -842,7 +909,8 @@ function addItem(data) {
         translated: data.translated || translate(data.original || ''),
         category: data.category || classify(data.original || ''),
         price: data.price || 0,
-        owner: data.owner ?? ''
+        owner: data.owner ?? '',
+        ownerManual: true
     });
 }
 
@@ -853,14 +921,7 @@ function esc(s) {
 // ==================== 导出 ====================
 
 function copySummary() {
-    const count = parseInt(els.splitCount.value) || 2;
-    const total = items.reduce((s, i) => s + i.price, 0);
-    const sharedTotal = items.filter(i => i.owner === '').reduce((s, i) => s + i.price, 0);
-    const aTotal = items.filter(i => i.owner === 'A').reduce((s, i) => s + i.price, 0);
-    const bTotal = items.filter(i => i.owner === 'B').reduce((s, i) => s + i.price, 0);
-    const sharedPerPerson = count > 0 ? sharedTotal / count : 0;
-    const aPays = sharedPerPerson + aTotal;
-    const bPays = sharedPerPerson + bTotal;
+    const result = calculateSettlement(items);
     const lines = [
         '🛒 德语超市账单拆分结果',
         '════════════════════════════',
@@ -871,11 +932,11 @@ function copySummary() {
         }),
         '',
         '════════════════════════════',
-        `账单总额：€${total.toFixed(2)}`,
-        `公摊总额：€${sharedTotal.toFixed(2)}（${count}人分，每人 €${sharedPerPerson.toFixed(2)}）`,
+        `账单总额：${fmt(result.total)}`,
+        `公摊总额：${fmt(result.shared)}`,
         '',
-        `${PEOPLE.A} 应付 = €${sharedPerPerson.toFixed(2)}(公摊) + €${aTotal.toFixed(2)}(独占) = €${aPays.toFixed(2)}`,
-        `${PEOPLE.B} 应付 = €${sharedPerPerson.toFixed(2)}(公摊) + €${bTotal.toFixed(2)}(独占) = €${bPays.toFixed(2)}`,
+        `${PEOPLE.A} 应付：${fmt(result.a)}（含公摊 ${fmt(result.sharedA)}）`,
+        `${PEOPLE.B} 应付：${fmt(result.b)}（含公摊 ${fmt(result.sharedB)}）`,
     ];
     els.copyBuffer.value = lines.join('\n');
     els.copyBuffer.select();
@@ -884,11 +945,12 @@ function copySummary() {
 }
 
 function exportCsv() {
-    const headers = ['序号', '德语原文', '中文翻译', '类别', '原价(€)', '归属', '公摊价(€)', '独占价(€)'];
+    const headers = ['序号', '德语原文', '中文翻译', '类别', '原价(€)', '归属', `${PEOPLE.A}公摊(€)`, `${PEOPLE.B}公摊(€)`, '独占价(€)'];
     const rows = items.map((it, i) => [
         i + 1, it.original, it.translated, CATEGORY_META[it.category].name, it.price.toFixed(2),
         it.owner === 'A' ? `${PEOPLE.A}独占` : it.owner === 'B' ? `${PEOPLE.B}独占` : '公摊',
         it.owner === '' ? it.splitPrice.toFixed(2) : '',
+        it.owner === '' ? it.splitPriceB.toFixed(2) : '',
         it.owner !== '' ? it.exclusivePrice.toFixed(2) : ''
     ]);
     const csv = [headers, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
